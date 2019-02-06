@@ -44,7 +44,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./src
-      Handler: authorizer.handler
+      Handler: authorizer.validate
       Runtime: nodejs8.10
 
 Outputs:
