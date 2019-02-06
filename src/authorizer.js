@@ -1,24 +1,23 @@
-/*
-** Adapted from https://docs.aws.amazon.com/apigateway/latest/developerguide/apigateway-use-lambda-authorizer.html#api-gateway-lambda-authorizer-token-lambda-function-create
-** A simple TOKEN authorizer example to demonstrate how to use an authorization token
-** to allow or deny a request.In this example, the caller named 'user'is allowed to invoke
-** a request if the client - supplied token value is 'allow'.The caller is not allowed to
-** invoke the request if the token value is 'deny'.If the token value is 'Unauthorized',
-** the function returns the 'Unauthorized' error with an HTTP status code of 401. For any
-** other token value, the authorizer returns 'Error: Invalid token' as a 500 error.
-*/
 
 exports.validate = async function (event) {
   const token = event.authorizationToken;
   const methodArn = event.methodArn;
 
-  switch (token) {
-    case 'allow':
-      return generateAuthResponse('user', 'Allow', methodArn)
-    case 'deny':
-      return generateAuthResponse('user', 'Deny', methodArn)
-    default:
-      return Promise.reject('Error: Invalid token') // Returns 500 Internal Server Error
+  if (token.startsWith("bearer ")) {
+      console.log("Contains bearer.");
+      const decodedToken = token.substr(7);
+      console.log("Decoded token: [", decodedToken, "]");
+      switch (decodedToken) {
+          case 'allow':
+              return generateAuthResponse('user', 'Allow', methodArn)
+          case 'deny':
+              return generateAuthResponse('user', 'Deny', methodArn)
+          default:
+              return Promise.reject('Error: Invalid token') // Returns 500 Internal Server Error
+      }
+  } else {
+      console.log("Missing bearer");
+      return generateAuthResponse('user', 'Deny', methodArn);
   }
 }
 
